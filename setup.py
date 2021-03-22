@@ -1,4 +1,4 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 
 import io
 from os.path import exists
@@ -35,7 +35,8 @@ setup(
     url='https://github.com/django-tenants/django-tenants',
     license='MIT',
     description='Tenant support for Django using PostgreSQL schemas.',
-    long_description=io.open('README.rst', encoding='utf-8').read() if exists("README.rst") else "",
+    long_description=io.open(
+        'README.rst', encoding='utf-8').read() if exists("README.rst") else "",
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
