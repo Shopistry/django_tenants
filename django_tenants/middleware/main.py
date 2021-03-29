@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import connection
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.urls import set_urlconf
 from django.utils.deprecation import MiddlewareMixin
 
@@ -46,16 +46,35 @@ class TenantMainMiddleware(MiddlewareMixin):
                 tenant_id = request.headers.get('X-TENANT-ID')
                 print('TENANT ID = ', tenant_id)
                 tenant_model = get_tenant_model()
-                tenant = tenant_model.objects.get(tenant_id=tenant_id)
-                print('TENANT = ', tenant.__dict__)
+                if tenant_model.objects.filter(tenant_id=tenant_id).exists():
+                    tenant = tenant_model.objects.get(tenant_id=tenant_id)
+                    print('TENANT = ', tenant.__dict__)
+                    tenant.domain_url = hostname
+                    request.tenant = tenant
+
+                    connection.set_tenant(request.tenant)
+                else:
+                    print('NO TENANT')
+                    return HttpResponse('Unauthorized - Invalid Tenant Id', status=401)
             except domain_model.DoesNotExist:
                 raise self.TENANT_NOT_FOUND_EXCEPTION(
                     'No tenant for id "%s"' % tenant_id)
 
-            tenant.domain_url = hostname
-            request.tenant = tenant
+        # if request.method != 'OPTIONS':
+        #     try:
+        #         tenant_id = request.headers.get('X-TENANT-ID')
+        #         print('TENANT ID = ', tenant_id)
+        #         tenant_model = get_tenant_model()
+        #         tenant = tenant_model.objects.get(tenant_id=tenant_id)
+        #         print('TENANT = ', tenant.__dict__)
+        #     except domain_model.DoesNotExist:
+        #         raise self.TENANT_NOT_FOUND_EXCEPTION(
+        #             'No tenant for id "%s"' % tenant_id)
 
-            connection.set_tenant(request.tenant)
+        #     tenant.domain_url = hostname
+        #     request.tenant = tenant
+
+        #     connection.set_tenant(request.tenant)
 
         # ** OLD DOMAIN METHOD***
         # try:
