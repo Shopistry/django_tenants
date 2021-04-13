@@ -41,7 +41,7 @@ class TenantMainMiddleware(MiddlewareMixin):
 
         domain_model = get_tenant_domain_model()
 
-        if request.method != 'OPTIONS':
+        if request.method != 'OPTIONS' and request.method != 'GET':
             try:
                 tenant_id = request.headers.get('X-TENANT-ID')
                 print('TENANT ID = ', tenant_id)
