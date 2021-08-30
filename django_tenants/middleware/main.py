@@ -32,9 +32,6 @@ class TenantMainMiddleware(MiddlewareMixin):
         # the tenant metadata is stored.
         connection.set_schema_to_public()
         hostname = self.hostname_from_request(request)
-        print('IN PROCESS REQUEST - METHOD = ', request.method)
-        print('IN PROCESS REQUEST - META = ', request.META)
-        print('IN PROCESS REQUEST - HEADERS = ', request.headers)
 
         tenant_id = request.headers.get('x-tenant-id')
         print('X TENTANT = ', tenant_id)
@@ -44,11 +41,9 @@ class TenantMainMiddleware(MiddlewareMixin):
         if request.method != 'OPTIONS' and request.method != 'GET':
             try:
                 tenant_id = request.headers.get('X-TENANT-ID')
-                print('TENANT ID = ', tenant_id)
                 tenant_model = get_tenant_model()
                 if tenant_model.objects.filter(tenant_id=tenant_id).exists():
                     tenant = tenant_model.objects.get(tenant_id=tenant_id)
-                    print('TENANT = ', tenant.__dict__)
                     tenant.domain_url = hostname
                     request.tenant = tenant
 
